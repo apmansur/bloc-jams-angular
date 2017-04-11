@@ -6,7 +6,7 @@ function config($stateProvider, $locationProvider) {
          });
          $stateProvider
          .state('landing', {
-             url: '/',//why not /landing?
+             url: '/',
              templateUrl: '/templates/landing.html'
             })
          .state('album', {

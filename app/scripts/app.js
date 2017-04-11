@@ -1,4 +1,5 @@
-function config($stateProvider, $locationProvider) {
+ (function() {
+     function config($stateProvider, $locationProvider) {
          $locationProvider
          .html5Mode({
              enabled: true,
@@ -6,7 +7,7 @@ function config($stateProvider, $locationProvider) {
          });
          $stateProvider
          .state('landing', {
-             url: '/',
+             url: '/',//why not /landing?
              templateUrl: '/templates/landing.html'
             })
          .state('album', {

@@ -1,12 +1,12 @@
 
 (function() {
-    function SongPlayer() {
+    function SongPlayer(Fixtures) {
         var SongPlayer = {};
-        /**
-        * @desc Holds current song number
-        * @type {Number}
+         /**
+        * @desc album object 
+        * @type {Object}
         */
-        var currentSong = null;
+        var currentAlbum = Fixtures.getAlbum();
         /**
         * @desc Buzz object audio file
         * @type {Object}
@@ -21,7 +21,7 @@
         var setSong = function(song) {
             if (currentBuzzObject) {
                 currentBuzzObject.stop();
-                currentSong.playing = null;
+                SongPlayer.currentSong.playing = null;
             }
             
             currentBuzzObject = new buzz.sound(song.audioUrl, {
@@ -29,8 +29,28 @@
                 preload: true
             });
             
-            currentSong = song;
+            /**
+            * @desc Active song object from list of songs
+            * @type {Object}
+            */
+            
+            SongPlayer.currentSong = song;
         };
+        
+         /**
+            * @function getIndexSong
+            * @desc fucntion to get song indez
+            * @type {Number}
+            */
+            var getSongIndex = function(song) {
+                 return currentAlbum.songs.indexOf(song);
+             };
+        
+         /**
+        * @desc Holds current song number
+        * @type {Number}
+        */
+        SongPlayer.currentSong = null;
         
         /**
         * @function playSong
@@ -42,18 +62,24 @@
             song.playing = true;
         };
         
+        var stopSong = function(song){
+             currentBuzzObject.stop();
+             song.playing = null;
+        };
+        
         /**
         * @function SongPlayer.play
         * @desc Plays current song if paused, or selected song
         * @param {Object} song
         */
         SongPlayer.play = function(song) {
-            if (currentSong !== song) {
+            song = song || SongPlayer.currentSong;
+            if (SongPlayer.currentSong !== song) {
                 
                 setSong(song);
                 playSong(song);
                 
-            } else if (currentSong === song) {
+            } else if (SongPlayer.currentSong === song) {
                 if (currentBuzzObject.isPaused()) {
                     playSong(song);
                 }
@@ -66,16 +92,57 @@
         * @param {Object} song
         */
         SongPlayer.pause = function(song) {
+            song = song || SongPlayer.currentSong;
             currentBuzzObject.pause();
             song.playing = false;
         };
+        
+        /**
+        * @function SongPlayer.previous
+        * @desc Sets song to previous song
+        * @param {Object} song
+        */
+        
+        SongPlayer.previous = function() {
+             var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+             currentSongIndex--;
+            
+             if (currentSongIndex < 0) {
+                 stopSong(song);
+             }
+            else {
+                 var song = currentAlbum.songs[currentSongIndex];
+                 setSong(song);
+                 playSong(song);
+             }
+         };
+        
+           /**
+        * @function SongPlayer.next
+        * @desc Sets song to next song
+        * @param {Object} song
+        */
+        
+        SongPlayer.next = function() {
+             var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+             currentSongIndex++;
+            
+             if (currentSongIndex < 0) {
+                 stopSong();
+             }
+            else {
+                 var song = currentAlbum.songs[currentSongIndex];
+                 setSong(song);
+                 playSong(song);
+             }
+         };
         
         return SongPlayer;
     }
     
     angular
         .module('blocJams')
-        .factory('SongPlayer', SongPlayer);
+        .factory('SongPlayer', ['Fixtures', SongPlayer]);
 })();
 
     

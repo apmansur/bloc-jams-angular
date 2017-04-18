@@ -1,5 +1,5 @@
 (function () {
-    function SongPlayer(Fixtures) {
+    function SongPlayer($rootScope, Fixtures) {
         var SongPlayer = {};
         /**
          * @desc album object 
@@ -14,7 +14,7 @@
 
         /**
          * @function setSong
-         * @desc Stops currently playing song and loads new audio file as currentBuzzObject
+         * @desc Stops currently playing song and loads new audio file as currentBuzzObject and allows other parts of application to listen to time update
          * @param {Object} song
          */
         var setSong = function (song) {
@@ -26,6 +26,12 @@
             currentBuzzObject = new buzz.sound(song.audioUrl, {
                 formats: ['mp3'],
                 preload: true
+            });
+
+            currentBuzzObject.bind('timeupdate', function () {
+                $rootScope.$apply(function () {
+                    SongPlayer.currentTime = currentBuzzObject.getTime();
+                });
             });
 
             /**
@@ -52,6 +58,12 @@
         SongPlayer.currentSong = null;
 
         /**
+         * @desc Current playback time (in seconds) of currently playing song
+         * @type {Number}
+         */
+        SongPlayer.currentTime = null;
+
+        /**
          * @function playSong
          * @desc Plays current song and sets song.playing to true
          * @param {Object} song
@@ -65,6 +77,34 @@
             currentBuzzObject.stop();
             song.playing = null;
         };
+
+        /**
+         * @function setCurrentTime
+         * @desc Set current time (in seconds) of currently playing song
+         * @param {Number} time
+         */
+        SongPlayer.setCurrentTime = function (time) {
+            if (currentBuzzObject) {
+                currentBuzzObject.setTime(time);
+            }
+        };
+        /**
+         * @function SongPlayer.volume
+         * @desc holds value of volume
+         * @param {Number} volume
+         */
+        SongPlayer.volume = 80;
+
+        /**
+         * @function SongPlayer.setVolume
+         * @desc sets volume of song playing
+         * @param {Number} volume
+         */
+        SongPlayer.setVolume = function (volume) {
+                SongPlayer.volume = volume;
+                currentBuzzObject.setVolume(volume);
+        };
+
 
         /**
          * @function SongPlayer.play
@@ -107,13 +147,13 @@
             currentSongIndex--;
 
             if (currentSongIndex < 0) {
-                currentSongIndex = ((currentAlbum.songs.length)-1);
+                currentSongIndex = ((currentAlbum.songs.length) - 1);
             }
-            
+
             var song = currentAlbum.songs[currentSongIndex];
             setSong(song);
             playSong(song);
-            
+
         };
 
         /**
@@ -126,9 +166,9 @@
             var currentSongIndex = getSongIndex(SongPlayer.currentSong);
             currentSongIndex++;
 
-            if (currentSongIndex > ((currentAlbum.songs.length)-1)) {
+            if (currentSongIndex > ((currentAlbum.songs.length) - 1)) {
                 currentSongIndex = 0;
-            } 
+            }
             var song = currentAlbum.songs[currentSongIndex];
             setSong(song);
             playSong(song);
@@ -139,5 +179,5 @@
 
     angular
         .module('blocJams')
-        .factory('SongPlayer', ['Fixtures', SongPlayer]);
+        .factory('SongPlayer', ['$rootScope', 'Fixtures', SongPlayer]);
 })();

@@ -10,6 +10,7 @@
          * @desc Buzz object audio file
          * @type {Object}
          */
+        
         var currentBuzzObject = null
 
         /**
@@ -94,6 +95,15 @@
          * @param {Number} volume
          */
         SongPlayer.volume = 80;
+        
+        SongPlayer.mute = function(){
+            if (SongPlayer.volume > 0){
+                SongPlayer.setVolume(0);
+            }
+            else{
+                SongPlayer.setVolume(80);
+            }
+        };
 
         /**
          * @function SongPlayer.setVolume
@@ -112,17 +122,19 @@
          * @param {Object} song
          */
         SongPlayer.play = function (song) {
-            song = song || SongPlayer.currentSong;
+            song = song || SongPlayer.currentSong || currentAlbum.songs[0];
             if (SongPlayer.currentSong !== song) {
 
                 setSong(song);
                 playSong(song);
 
-            } else if (SongPlayer.currentSong === song) {
+            } 
+            else if (SongPlayer.currentSong === song) {
                 if (currentBuzzObject.isPaused()) {
                     playSong(song);
                 }
             }
+           
         };
 
         /**
